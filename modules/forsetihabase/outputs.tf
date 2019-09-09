@@ -1,0 +1,45 @@
+/**
+ * Copyright 2018 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+output "forseti-server-service-account" {
+  description = "Forseti Server service account"
+  value       = "${module.server.forseti-server-service-account}"
+}
+
+output "forseti-server-storage-bucket" {
+  description = "Forseti Server storage bucket"
+  value       = "${module.server.forseti-server-storage-bucket}"
+}
+
+output "forseti-cloudsql-connection-name" {
+  description = "Forseti CloudSQL Connection String"
+  value       = "${module.server.forseti-cloudsql-connection-name}"
+}
+
+output "suffix" {
+  description = "The random suffix appended to Forseti resources"
+  value       = "${local.random_hash}"
+}
+
+output "forseti_mig_startup_script" {
+  description = "The startup script for forseti instance templates"
+  value       = "${module.server.forseti_mig_startup_script}"
+}
+
+output "forseti_mig_startup_script_content" {
+  description = "The rendered startup script for forseti instance templates"
+  value       = "${module.server.forseti_mig_startup_script_content}"
+}
