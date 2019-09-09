@@ -20,8 +20,8 @@ terraform {
   required_version = ">= 0.10.0"
 
   backend "gcs" {
-    bucket = "tf-state-lel"
-    prefix = "Security/state/prod/forsetiservers"
+    bucket = "tf-remote-state"
+    prefix = "Terraform/state/forsetibase"
   }
 }
 

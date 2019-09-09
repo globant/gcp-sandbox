@@ -14,18 +14,7 @@
  * limitations under the License.
  */
 
-output "log_sink_rules" {
-  value = "${data.template_file.log_sink_rules.rendered}"
-}
-
-output "bucket_rules" {
-  value = "${data.template_file.bucket_rules.rendered}"
-}
-
-output "service_account_key_rules" {
-  value = "${data.template_file.service_account_key_rules.rendered}"
-}
-
-output "instance_network_interface_rules" {
-  value = "${data.template_file.instance_network_interface_rules.rendered}"
+output "files" {
+  description = "A list of files that will be uploaded as Forseti rules"
+  value       = "${local.files}"
 }

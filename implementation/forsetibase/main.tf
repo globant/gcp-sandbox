@@ -1,27 +1,17 @@
-#
-#  Copyright 2019 Google LLC. 
-# 
-#  This software is provided as is, without warranty 
-#  or representation for any use or purpose. Your use 
-#  of it is subject to your agreement with Google. 
-#
-
 locals {
   credentials_file_path = "${var.credentials_path}"
-
-  env = "prod"
 }
 
 provider "google-beta" {
-  credentials = "${file("${var.credentials_path}")}"
+  credentials = "${file("${local.credentials_file_path}")}"
 }
 
 terraform {
   required_version = ">= 0.10.0"
 
   backend "gcs" {
-    bucket = "tf-state-lel"
-    prefix = "Security/state/prod/forsetibase"
+    bucket = "tf-remote-state"
+    prefix = "Terraform/state/forsetibase"
   }
 }
 

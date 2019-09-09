@@ -33,15 +33,7 @@ variable "server_instance_metadata" {
 }
 
 variable "instance_startup_script" {
-  description = "Startup script for instance templates to deploy in the Managed Instance Group"
-}
-
-variable "repository_project_id" {
-  description = "Name of repository project to pull server image from"
-}
-
-variable "image_family_id" {
-  description = "Name of family of images to pull latest image from"
+  description = "Rendered startup script for instance templates to deploy in the Managed Instance Group"
 }
 
 variable "subnetwork" {
@@ -53,7 +45,7 @@ variable "forseti_service_account" {
   description = "Service account to run Forseti Server as"
 }
 
-//variable "forseti_storage_bucket" {
-//  description = "Storage bucket where forseti config files reside"
-//}
-
+variable "server_boot_image" {
+  description = "GCE instance image that is being used, currently Debian only support is available"
+  default     = "ubuntu-os-cloud/ubuntu-1804-lts"
+}

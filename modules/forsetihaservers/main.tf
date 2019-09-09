@@ -15,10 +15,8 @@ resource "random_id" "random_hash_suffix" {
 }
 
 locals {
-  random_hash       = "${random_id.random_hash_suffix.hex}"
-  server_name       = "forseti-server-vm-${local.random_hash}"
-  server_boot_image = "projects/${var.repository_project_id}/global/images/family/${var.image_family_id}"
-  init_script_startup = "sudo sh /home/ubuntu/config_files/scripts/forseti_mig_startup_script.sh"
+  random_hash = "${random_id.random_hash_suffix.hex}"
+  server_name = "forseti-server-vm-${local.random_hash}"
 }
 
 resource "google_compute_instance_template" "forseti" {
@@ -38,7 +36,7 @@ resource "google_compute_instance_template" "forseti" {
 
   //allow_stopping_for_update = true
   metadata                = "${var.server_instance_metadata}"
-  metadata_startup_script = "${local.init_script_startup}"
+  metadata_startup_script = "${var.instance_startup_script}"
 
   scheduling {
     automatic_restart   = true
@@ -47,7 +45,7 @@ resource "google_compute_instance_template" "forseti" {
 
   // Create a new boot disk from an image
   disk {
-    source_image = "${local.server_boot_image}"
+    source_image = "${var.server_boot_image}"
     auto_delete  = true
     boot         = true
   }

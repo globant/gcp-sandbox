@@ -26,9 +26,3 @@ variable "org_id" {
 variable "domain" {
   description = "The domain associated with the GCP Organization ID"
 }
-
-variable "whitelist_projects" {
-  description = "The list of whitelist projects for forseti"
-  type        = "list"
-  default     = []
-}

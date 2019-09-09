@@ -18,22 +18,21 @@
 # Locals #
 #--------#
 locals {
-  random_hash                = "${var.suffix}"
-  network_project            = "${var.network_project != "" ? var.network_project : var.project_id}"
-  server_zone                = "${var.server_region}-c"
-  server_startup_script      = "${file("${path.module}/templates/scripts/forseti-server/forseti_server_startup_script.sh.tpl")}"
-  mig_startup_script         = "${file("${path.module}/templates/scripts/forseti-server/forseti_mig_startup_script.sh.tpl")}"
-  server_environment         = "${file("${path.module}/templates/scripts/forseti-server/forseti_environment.sh.tpl")}"
-  server_env                 = "${file("${path.module}/templates/scripts/forseti-server/forseti_env.sh.tpl")}"
-  server_conf                = "${file("${path.module}/templates/configs/forseti_conf_server.yaml.tpl")}"
-  server_conf_path           = "${var.forseti_home}/configs/forseti_conf_server.yaml"
-  server_name                = "forseti-server-vm-${local.random_hash}"
-  server_sa_name             = "forseti-server-gcp-${local.random_hash}"
-  cloudsql_name              = "forseti-server-db-${local.random_hash}"
-  storage_bucket_name        = "forseti-server-${local.random_hash}"
-  storage_bakery_bucket_name = "forseti-bakery-server-${local.random_hash}"
-  storage_cai_bucket_name    = "forseti-cai-export-${local.random_hash}"
-  server_bucket_name         = "forseti-server-${local.random_hash}"
+  random_hash             = "${var.suffix}"
+  network_project         = "${var.network_project != "" ? var.network_project : var.project_id}"
+  server_zone             = "${var.server_region}-c"
+  server_startup_script   = "${file("${path.module}/templates/scripts/forseti-server/forseti_server_startup_script.sh.tpl")}"
+  mig_startup_script      = "${file("${path.module}/templates/scripts/forseti-server/forseti_mig_startup_script.sh.tpl")}"
+  server_environment      = "${file("${path.module}/templates/scripts/forseti-server/forseti_environment.sh.tpl")}"
+  server_env              = "${file("${path.module}/templates/scripts/forseti-server/forseti_env.sh.tpl")}"
+  server_conf             = "${file("${path.module}/templates/configs/forseti_conf_server.yaml.tpl")}"
+  server_conf_path        = "${var.forseti_home}/configs/forseti_conf_server.yaml"
+  server_name             = "forseti-server-vm-${local.random_hash}"
+  server_sa_name          = "forseti-server-gcp-${local.random_hash}"
+  cloudsql_name           = "forseti-server-db-${local.random_hash}"
+  storage_bucket_name     = "forseti-server-${local.random_hash}"
+  storage_cai_bucket_name = "forseti-cai-export-${local.random_hash}"
+  server_bucket_name      = "forseti-server-${local.random_hash}"
 
   # Determine the root resource. If a composite root resource list is available
   # then it will take precedence, otherwise we'll fall back to a singular root
@@ -403,36 +402,36 @@ resource "google_compute_firewall" "forseti-server-private-access" {
   depends_on = ["null_resource.services-dependency"]
 }
 
-//resource "google_compute_firewall" "forseti-server-allow-grpc" {
-//  name                    = "forseti-server-allow-grpc-${local.random_hash}"
-//  project                 = "${local.network_project}"
-//  network                 = "${var.network}"
-//  target_service_accounts = ["${google_service_account.forseti_server.email}"]
-//  source_ranges           = "${var.server_grpc_allow_ranges}"
-//  source_service_accounts = ["${var.client_service_account_email}"]
-//  priority                = "100"
-//
-//  allow {
-//    protocol = "tcp"
-//    ports    = ["50051", "50052"]
-//  }
-//
-//  depends_on = ["null_resource.services-dependency"]
-//}
+resource "google_compute_firewall" "forseti-server-allow-grpc" {
+  name                    = "forseti-server-allow-grpc-${local.random_hash}"
+  project                 = "${local.network_project}"
+  network                 = "${var.network}"
+  target_service_accounts = ["${google_service_account.forseti_server.email}"]
+  source_ranges           = "${var.server_grpc_allow_ranges}"
+  source_service_accounts = ["${var.client_service_account_email}"]
+  priority                = "100"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["50051", "50052"]
+  }
+
+  depends_on = ["null_resource.services-dependency"]
+}
 
 #----------------------------------#
 # Default route to Google Services #
 #----------------------------------#
 
 resource "google_compute_route" "forseti_to_services" {
-  project     = "${var.project_id}"
-  name        = "forseti-to-google-west"
-  description = "Default route from Forseti to internal services."
-  dest_range  = "0.0.0.0/0"
-  network     = "${var.cloudsql_network}"
+  project          = "${var.project_id}"
+  name             = "forseti-to-google-west"
+  description      = "Default route from Forseti to internal services."
+  dest_range       = "0.0.0.0/0"
+  network          = "${var.cloudsql_network}"
   next_hop_gateway = "default-internet-gateway"
-  priority    = 100
-  tags        = "${var.server_tags}"
+  priority         = 100
+  tags             = "${var.server_tags}"
 }
 
 #------------------------#
@@ -479,47 +478,6 @@ resource "google_storage_bucket" "cai_export" {
   }
 
   depends_on = ["null_resource.services-dependency"]
-}
-
-#-----------------------------#
-# Image Bakery Storage bucket #
-#-----------------------------#
-
-resource "google_storage_bucket" "bakery_forseti_server_config" {
-  name          = "${local.storage_bakery_bucket_name}"
-  project       = "${var.bakery_project_id}"
-  force_destroy = "true"
-  storage_class = "MULTI_REGIONAL"
-}
-
-resource "google_storage_bucket_object" "forseti_mig_startup_script" {
-  name    = "scripts/forseti_mig_startup_script.sh"
-  bucket  = "${google_storage_bucket.bakery_forseti_server_config.name}"
-  content = "${data.template_file.forseti_mig_startup_script.rendered}"
-}
-
-resource "google_storage_bucket_object" "bakery_forseti_server_config" {
-  name    = "configs/forseti_conf_server.yaml"
-  bucket  = "${google_storage_bucket.bakery_forseti_server_config.name}"
-  content = "${data.template_file.forseti_server_config.rendered}"
-}
-
-resource "google_storage_bucket_object" "bakery_forseti_server_startup_script" {
-  name    = "forseti_server_startup_script.sh"
-  content = "${data.template_file.forseti_server_startup_script.rendered}"
-  bucket  = "${google_storage_bucket.bakery_forseti_server_config.name}"
-}
-
-resource "google_storage_bucket_object" "bakery_forseti_server_environment" {
-  name    = "forseti_environment.sh"
-  content = "${data.template_file.forseti_server_environment.rendered}"
-  bucket  = "${google_storage_bucket.bakery_forseti_server_config.name}"
-}
-
-resource "google_storage_bucket_object" "bakery_forseti_server_env" {
-  name    = "forseti_env.sh"
-  content = "${data.template_file.forseti_server_env.rendered}"
-  bucket  = "${google_storage_bucket.bakery_forseti_server_config.name}"
 }
 
 #----------------------#
