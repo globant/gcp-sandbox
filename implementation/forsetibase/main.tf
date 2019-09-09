@@ -16,7 +16,7 @@ terraform {
 }
 
 module "forseti_base_template" {
-  source = "../../../modules/forsetihabase"
+  source = "../../modules/forsetihabase"
 
   gsuite_admin_email      = "${var.gsuite_admin_email}"
   domain                  = "${var.org_domain}"

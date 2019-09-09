@@ -8,8 +8,6 @@
 
 locals {
   credentials_file_path = "${var.credentials_path}"
-
-  env = "prod"
 }
 
 provider "google-beta" {
