@@ -15,8 +15,8 @@ terraform {
   }
 }
 
-module "forseti_base_template" {
-  source = "../../modules/forsetihabase"
+module "forseti_ha_deploy" {
+  source = "../../forsetiha"
 
   gsuite_admin_email      = "${var.gsuite_admin_email}"
   domain                  = "${var.org_domain}"
@@ -27,5 +27,4 @@ module "forseti_base_template" {
   cloudsql_network        = "${var.cloudsql_network}"
   whitelist_projects      = "${var.whitelist_projects}"
   cscc_violations_enabled = "${var.cscc_violations_enabled}"
-  server_tags             = "${var.server_tags}"
 }
