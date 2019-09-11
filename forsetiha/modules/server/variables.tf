@@ -21,10 +21,6 @@ variable "project_id" {
   description = "Google Project ID that you want Forseti deployed into"
 }
 
-variable "bakery_project_id" {
-  description = "Google Project ID for the image bakery"
-}
-
 variable "gsuite_admin_email" {
   description = "G-Suite administrator email address to manage your Forseti installation"
 }

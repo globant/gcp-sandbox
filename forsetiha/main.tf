@@ -79,7 +79,6 @@ resource "google_project_service" "cscc_violations" {
 module "server" {
   source = "modules/server"
 
-  bakery_project_id                                   = "${var.bakery_project_id}"
   enable_cai_bucket                                   = "${var.enable_cai_bucket}"
   project_id                                          = "${var.project_id}"
   gsuite_admin_email                                  = "${var.gsuite_admin_email}"
@@ -220,4 +219,18 @@ module "server" {
   services = "${google_project_service.main.*.service}"
 
   whitelist_projects = "${var.whitelist_projects}"
+}
+
+module "forseti_instance_group" {
+  source = "modules/server"
+
+  project_id               = "${var.project_id}"
+  server_tags              = "${var.server_tags}"
+  server_type              = "${var.server_type}"
+  server_instance_metadata = "${var.server_instance_metadata}"
+  instance_startup_script  = "${module.server.forseti_mig_startup_script_content}"
+  server_boot_image        = "${var.server_boot_image}"
+  subnetwork               = "${var.subnetwork}"
+  forseti_service_account  = "${module.server.forseti-server-service-account}"
+  server_region            = "${var.server_region}"
 }
