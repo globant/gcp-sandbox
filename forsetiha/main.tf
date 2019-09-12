@@ -76,6 +76,31 @@ resource "google_project_service" "cscc_violations" {
   disable_on_destroy = "false"
 }
 
+module "client" {
+  source = "modules/client"
+
+  project_id               = "${var.project_id}"
+  client_boot_image        = "${var.client_boot_image}"
+  server_address           = "${module.forseti_instance_group.load-balancer-ip-address}"
+  subnetwork               = "${var.subnetwork}"
+  forseti_home             = "${var.forseti_home}"
+  storage_bucket_location  = "${var.storage_bucket_location}"
+  forseti_version          = "${var.forseti_version}"
+  forseti_repo_url         = "${var.forseti_repo_url}"
+  client_type              = "${var.client_type}"
+  network_project          = "${local.network_project}"
+  network                  = "${var.network}"
+  suffix                   = "${local.random_hash}"
+  client_region            = "${var.client_region}"
+  client_instance_metadata = "${var.client_instance_metadata}"
+  client_ssh_allow_ranges  = "${var.client_ssh_allow_ranges}"
+  client_tags              = "${var.client_tags}"
+  client_access_config     = "${var.client_access_config}"
+  client_private           = "${var.client_private}"
+
+  services = "${google_project_service.main.*.service}"
+}
+
 module "server" {
   source = "modules/server"
 
@@ -88,6 +113,7 @@ module "server" {
   forseti_email_sender                                = "${var.forseti_email_sender}"
   forseti_home                                        = "${var.forseti_home}"
   forseti_run_frequency                               = "${var.forseti_run_frequency}"
+  client_service_account_email                        = "${module.client.forseti-client-service-account}"
   server_type                                         = "${var.server_type}"
   server_region                                       = "${var.server_region}"
   server_boot_image                                   = "${var.server_boot_image}"
@@ -99,7 +125,6 @@ module "server" {
   cloudsql_db_port                                    = "${var.cloudsql_db_port}"
   cloudsql_proxy_arch                                 = "${var.cloudsql_proxy_arch}"
   cloudsql_type                                       = "${var.cloudsql_type}"
-  cloudsql_network                                    = "${var.cloudsql_network}"
   storage_bucket_location                             = "${var.storage_bucket_location}"
   bucket_cai_location                                 = "${var.bucket_cai_location}"
   bucket_cai_lifecycle_age                            = "${var.bucket_cai_lifecycle_age}"
@@ -217,20 +242,19 @@ module "server" {
   groups_settings_violations_should_notify = "${var.groups_settings_violations_should_notify}"
 
   services = "${google_project_service.main.*.service}"
-
-  whitelist_projects = "${var.whitelist_projects}"
 }
 
 module "forseti_instance_group" {
-  source = "modules/server"
+  source = "modules/forsetihaservers"
 
   project_id               = "${var.project_id}"
   server_tags              = "${var.server_tags}"
   server_type              = "${var.server_type}"
   server_instance_metadata = "${var.server_instance_metadata}"
-  instance_startup_script  = "${module.server.forseti_mig_startup_script_content}"
+  instance_startup_script  = "${module.server.forseti_server_startup_script_content}"
   server_boot_image        = "${var.server_boot_image}"
   subnetwork               = "${var.subnetwork}"
   forseti_service_account  = "${module.server.forseti-server-service-account}"
   server_region            = "${var.server_region}"
+  network                  = "${var.network}"
 }

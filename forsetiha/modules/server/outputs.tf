@@ -34,12 +34,7 @@ output "forseti-cloudsql-replica-connection-name" {
   value       = "${google_sql_database_instance.read_replica.connection_name}"
 }
 
-output "forseti_mig_startup_script" {
-  description = "The startup script for forseti instance templates"
-  value       = "${google_storage_bucket_object.forseti_mig_startup_script.self_link}"
-}
-
-output "forseti_mig_startup_script_content" {
+output "forseti_server_startup_script_content" {
   description = "The rendered startup script for forseti instance templates"
-  value       = "${data.template_file.forseti_mig_startup_script.rendered}"
+  value       = "${data.template_file.forseti_server_startup_script.rendered}"
 }

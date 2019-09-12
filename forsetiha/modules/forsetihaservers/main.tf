@@ -50,10 +50,6 @@ resource "google_compute_instance_template" "forseti" {
     boot         = true
   }
 
-  shielded_instance_config {
-    enable_secure_boot = true
-  }
-
   network_interface {
     subnetwork = "${var.subnetwork}"
 
@@ -107,5 +103,41 @@ resource "google_compute_region_instance_group_manager" "forseti" {
   auto_healing_policies {
     health_check      = "${google_compute_health_check.autohealing.self_link}"
     initial_delay_sec = 300
+  }
+}
+
+#---------------------------#
+# Load Balancer for servers #
+#---------------------------#
+resource "google_compute_address" "balancer_address" {
+  project      = "${var.project_id}"
+  name         = "forseti-balancer-address"
+  subnetwork   = "${var.subnetwork}"
+  address_type = "INTERNAL"
+  region       = "${var.server_region}"
+}
+
+resource "google_compute_forwarding_rule" "server_balancer" {
+  project = "${var.project_id}"
+  name    = "forseti-server-balancer"
+  region  = "${var.server_region}"
+
+  load_balancing_scheme = "INTERNAL"
+  ip_protocol           = "TCP"
+  ip_address            = "${google_compute_address.balancer_address.address}"
+  backend_service       = "${google_compute_region_backend_service.forseti_backend.self_link}"
+  ports                 = ["50051"]
+  network               = "${var.network}"
+  subnetwork            = "${var.subnetwork}"
+}
+
+resource "google_compute_region_backend_service" "forseti_backend" {
+  project       = "${var.project_id}"
+  name          = "forseti-backend"
+  region        = "${var.server_region}"
+  health_checks = ["${google_compute_health_check.autohealing.self_link}"]
+
+  backend = {
+    group = "${google_compute_region_instance_group_manager.forseti.instance_group}"
   }
 }

@@ -21,10 +21,6 @@ variable "project_id" {
   description = "Google Project ID that you want Forseti deployed into"
 }
 
-variable "bakery_project_id" {
-  description = "Google Project ID for the image bakery"
-}
-
 variable "gsuite_admin_email" {
   description = "G-Suite administrator email address to manage your Forseti installation"
   default     = ""
@@ -686,11 +682,6 @@ variable "cloudsql_type" {
   default     = "db-n1-standard-1"
 }
 
-variable "cloudsql_network" {
-  description = "CloudSQL network"
-  default     = ""
-}
-
 #----------------#
 # Forseti bucket #
 #----------------#
@@ -766,10 +757,4 @@ variable "composite_root_resources" {
 variable "sendgrid_api_key" {
   description = "Sendgrid.com API key to enable email notifications"
   default     = ""
-}
-
-variable "whitelist_projects" {
-  description = "The list of whitelist projects for forseti"
-  type        = "list"
-  default     = []
 }

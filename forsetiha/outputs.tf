@@ -33,13 +33,3 @@ output "suffix" {
   description = "The random suffix appended to Forseti resources"
   value       = "${local.random_hash}"
 }
-
-output "forseti_mig_startup_script" {
-  description = "The startup script for forseti instance templates"
-  value       = "${module.server.forseti_mig_startup_script}"
-}
-
-output "forseti_mig_startup_script_content" {
-  description = "The rendered startup script for forseti instance templates"
-  value       = "${module.server.forseti_mig_startup_script_content}"
-}

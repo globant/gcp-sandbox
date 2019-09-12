@@ -36,6 +36,11 @@ variable "instance_startup_script" {
   description = "Rendered startup script for instance templates to deploy in the Managed Instance Group"
 }
 
+variable "network" {
+  description = "The VPC network where the Forseti client and server will be created"
+  default     = "default"
+}
+
 variable "subnetwork" {
   description = "The VPC subnetwork where the Forseti client and server will be created"
   default     = "default"

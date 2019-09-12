@@ -565,9 +565,9 @@ variable "server_private" {
   default     = "false"
 }
 
-//variable "client_service_account_email" {
-//  description = "Service account of the forseti client"
-//}
+variable "client_service_account_email" {
+  description = "Service account of the forseti client"
+}
 
 #------------#
 # Forseti db #

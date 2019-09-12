@@ -22,7 +22,6 @@ locals {
   network_project         = "${var.network_project != "" ? var.network_project : var.project_id}"
   server_zone             = "${var.server_region}-c"
   server_startup_script   = "${file("${path.module}/templates/scripts/forseti-server/forseti_server_startup_script.sh.tpl")}"
-  mig_startup_script      = "${file("${path.module}/templates/scripts/forseti-server/forseti_mig_startup_script.sh.tpl")}"
   server_environment      = "${file("${path.module}/templates/scripts/forseti-server/forseti_environment.sh.tpl")}"
   server_env              = "${file("${path.module}/templates/scripts/forseti-server/forseti_env.sh.tpl")}"
   server_conf             = "${file("${path.module}/templates/configs/forseti_conf_server.yaml.tpl")}"
@@ -101,19 +100,6 @@ data "template_file" "forseti_server_startup_script" {
     cloudsql_proxy_arch          = "${var.cloudsql_proxy_arch}"
     storage_bucket_name          = "${local.server_bucket_name}"
     forseti_conf_server_checksum = "${base64sha256(data.template_file.forseti_server_config.rendered)}"
-  }
-}
-
-data "template_file" "forseti_mig_startup_script" {
-  template = "${local.mig_startup_script}"
-
-  vars {
-    forseti_environment      = "${data.template_file.forseti_server_environment.rendered}"
-    forseti_env              = "${data.template_file.forseti_server_env.rendered}"
-    forseti_run_frequency    = "${var.forseti_run_frequency}"
-    forseti_server_conf_path = "${local.server_conf_path}"
-    forseti_home             = "${var.forseti_home}"
-    storage_bucket_name      = "${local.server_bucket_name}"
   }
 }
 
@@ -428,7 +414,7 @@ resource "google_compute_route" "forseti_to_services" {
   name             = "forseti-to-google-west"
   description      = "Default route from Forseti to internal services."
   dest_range       = "0.0.0.0/0"
-  network          = "${var.cloudsql_network}"
+  network          = "${var.network}"
   next_hop_gateway = "default-internet-gateway"
   priority         = 100
   tags             = "${var.server_tags}"
@@ -453,11 +439,10 @@ resource "google_storage_bucket_object" "forseti_server_config" {
 }
 
 module "server_rules" {
-  source             = "../rules"
-  bucket             = "${google_storage_bucket.server_config.name}"
-  org_id             = "${var.org_id}"
-  domain             = "${var.domain}"
-  whitelist_projects = "${var.whitelist_projects}"
+  source = "../rules"
+  bucket = "${google_storage_bucket.server_config.name}"
+  org_id = "${var.org_id}"
+  domain = "${var.domain}"
 }
 
 resource "google_storage_bucket" "cai_export" {
@@ -490,11 +475,11 @@ resource "google_compute_global_address" "cloudsql_private_ip_address" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = "${var.cloudsql_network}"
+  network       = "${var.network}"
 }
 
 resource "google_service_networking_connection" "cloudsql_private_vpc_connection" {
-  network                 = "${var.cloudsql_network}"
+  network                 = "${var.network}"
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = ["${google_compute_global_address.cloudsql_private_ip_address.name}"]
 }
@@ -524,7 +509,7 @@ resource "google_sql_database_instance" "master" {
       ipv4_enabled        = false
       authorized_networks = []
       require_ssl         = true
-      private_network     = "${var.cloudsql_network}"
+      private_network     = "${var.network}"
     }
   }
 
@@ -559,7 +544,7 @@ resource "google_sql_database_instance" "failover" {
       ipv4_enabled        = false
       authorized_networks = []
       require_ssl         = true
-      private_network     = "${var.cloudsql_network}"
+      private_network     = "${var.network}"
     }
   }
 
@@ -593,7 +578,7 @@ resource "google_sql_database_instance" "read_replica" {
       ipv4_enabled        = false
       authorized_networks = []
       require_ssl         = true
-      private_network     = "${var.cloudsql_network}"
+      private_network     = "${var.network}"
     }
   }
 
