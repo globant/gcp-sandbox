@@ -53,9 +53,9 @@ resource "google_compute_instance_template" "forseti" {
   network_interface {
     subnetwork = "${var.subnetwork}"
 
-    //access_config = {
-    //  // Remove to delete public IP  
-    //}
+    access_config = {
+      // Remove to delete public IP  
+    }
   }
 
   service_account {

@@ -14,13 +14,13 @@ terraform {
   backend "gcs" {
     bucket      = "tf-remote-state-test"
     prefix      = "Terraform/state/forsetiha"
-    credentials = "../../credentials.json"
+    credentials = "../credentials.json"
   }
 }
 
 # Definition of local values needed by the respurce modules
 locals {
-  credentials_file_path   = "../../credentials.json"
+  credentials_file_path   = "../credentials.json"
   org_domain              = "gcpsandbox.cloud"
   forseti_project_id      = "lab-forsetiha"
   region                  = "us-west1"
@@ -30,8 +30,9 @@ locals {
 
 # Creates a VPC network and a subnet in the project Forseti will be deployed
 resource "google_compute_network" "vpc_network" {
-  name    = "vpc-network-01"
-  project = "${local.forseti_project_id}"
+  name                    = "vpc-network-01"
+  project                 = "${local.forseti_project_id}"
+  auto_create_subnetworks = "False"
 }
 
 resource "google_compute_subnetwork" "forseti_vpc_subnet" {
@@ -43,7 +44,7 @@ resource "google_compute_subnetwork" "forseti_vpc_subnet" {
 }
 
 module "forseti_ha_deploy" {
-  source = "../../forsetiha"
+  source = "../forsetiha"
 
   domain                  = "${local.org_domain}"
   project_id              = "${local.forseti_project_id}"
