@@ -1,27 +1,27 @@
 // Project configuration
 variable "project_id" {
-  type        = "string"
+  type        = string
   description = "ID of the project to deploy to."
 }
 
 variable "region" {
-  type        = "string"
+  type        = string
   description = "GCP region to deploy resources to."
 }
 
 // Network configuration
 variable "network_name" {
-  type        = "string"
+  type        = string
   description = "Name of VPC to create in project."
 }
 
 variable "subnet_name" {
-  type        = "string"
+  type        = string
   description = "Name of subnetwork to create for resources."
 }
 
 variable "subnet_range" {
-  type        = "string"
+  type        = string
   description = "CIDR IP range for created subnet."
 }
 
