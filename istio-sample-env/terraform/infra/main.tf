@@ -1,41 +1,57 @@
-provider "google-beta" {
-  credentials = "${file("../../secrets/credentials.json")}"
-  project     = "istio-sample-254516"
-  region      = "us-central1"
-}
-
-provider "kubernetes" {
-  insecure         = true
-  load_config_file = false
-}
-
 terraform {
   required_version = ">= 0.10.0"
 
   backend "gcs" {
-    bucket = "tf-remote-state-test"
-    prefix = "istio-sample-env/state/infra"
+    credentials = "../../credentials.json"
+    bucket      = "tf-remote-state-test"
+    prefix      = "istio-sample-env/state/infra"
   }
 }
 
 locals {
-  project_id          = "istio-sample-254516"
-  istio_cluster_admin = "fgonzalez@gcpsandbox.cloud"
+  project_id             = "${var.project_id}"
+  region                 = "${var.region}"
+  istio_cluster_admin    = "${var.istio_cluster_admin}"
+  istio_cluster_name     = "${var.istio_cluster_name}"
+  network_name           = "${var.network_name}"
+  subnet_name            = "${var.subnet_name}"
+  subnet_range           = "${var.subnet_range}"
+  node_pool_name         = "${var.node_pool_name}"
+  node_pool_machine_type = "${var.node_pool_machine_type}"
+  preemptible_nodes      = "${var.preemptible_nodes}"
 }
 
+// Begin provider definitions
+
+provider "google-beta" {
+  credentials = "../../credentials.json"
+  project     = "${local.project_id}"
+  region      = "${local.region}"
+}
+
+provider "google" {
+  credentials = "../../credentials.json"
+  project     = "${local.project_id}"
+  region      = "${local.region}"
+}
+
+provider "kubernetes" {
+  insecure = true
+}
 
 // Generate VPC network for project
+
 resource "google_compute_network" "vpc_network" {
-  name                    = "vpc-network-01"
+  name                    = "${local.network_name}"
   project                 = "${local.project_id}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "vpc_subnet" {
-  name          = "subnetwork-01"
-  region        = "us-central1"
+  name          = "${local.subnet_name}"
+  region        = "${local.region}"
   project       = "${local.project_id}"
-  ip_cidr_range = "10.2.0.0/16"
+  ip_cidr_range = "${local.subnet_range}"
   network       = "${google_compute_network.vpc_network.self_link}"
 }
 
@@ -43,8 +59,8 @@ resource "google_compute_subnetwork" "vpc_subnet" {
 // Deploy GKE Cluster with Istio
 resource "google_container_cluster" "istio_cluster" {
   provider   = "google-beta"
-  name       = "istio-cluster"
-  location   = "us-central1"
+  name       = "${local.istio_cluster_name}"
+  location   = "${local.region}"
   network    = "${google_compute_network.vpc_network.self_link}"
   subnetwork = "${google_compute_subnetwork.vpc_subnet.self_link}"
 
@@ -77,15 +93,15 @@ resource "google_container_cluster" "istio_cluster" {
 }
 
 resource "google_container_node_pool" "istio_cluster_preemptible_nodes" {
-  name       = "istio-node-pool"
-  location   = "us-central1"
+  name       = "${local.node_pool_name}"
+  location   = "${local.region}"
   project    = "${local.project_id}"
   cluster    = "${google_container_cluster.istio_cluster.name}"
   node_count = 2
 
   node_config {
-    preemptible  = true
-    machine_type = "g1-small"
+    preemptible  = "${local.preemptible_nodes}"
+    machine_type = "${local.node_pool_machine_type}"
 
     metadata = {
       disable-legacy-endpoints = "true"

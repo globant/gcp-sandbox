@@ -1,0 +1,10 @@
+project_id             = "istio-sample-254516"
+region                 = "us-central1"
+network_name           = "vpc-network-01"
+subnet_name            = "subnetwork-01"
+subnet_range           = "10.2.0.0/16"
+istio_cluster_admin    = "fgonzalez@gcpsandbox.cloud"
+istio_cluster_name     = "istio-cluster"
+node_pool_name         = "istio-node-pool"
+node_pool_machine_type = "g1-small"
+preemptible_nodes      = true
