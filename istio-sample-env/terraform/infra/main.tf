@@ -69,7 +69,7 @@ resource "google_container_cluster" "istio_cluster" {
   ]
 
   remove_default_node_pool = true
-  initial_node_count       = 2
+  initial_node_count       = 1
 
   master_auth {
     username = ""
@@ -125,7 +125,7 @@ data "google_container_cluster" "istio_cluster" {
 // Add cluster admin role binding
 resource "kubernetes_cluster_role_binding" "cluster_admin" {
   metadata {
-    name = "istio_cluster_admin"
+    name = "istio-cluster-admin"
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
