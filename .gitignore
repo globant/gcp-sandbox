@@ -2,3 +2,5 @@
 .terraform
 *credentials.json
 manifest.json
+DS.store
+.DS_store
