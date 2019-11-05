@@ -17,13 +17,13 @@
 
 
 provider "google" {
-  project = "watersedge"
+  project = "my-project"
   region  = "us-west1"
 }
 
 terraform {
   backend "gcs" {
-    bucket = "state-bucket-961aa1ca4d3101c4"
+    bucket = "my-state-bucket"
     prefix = "Storage/state/prod"
   }
 }

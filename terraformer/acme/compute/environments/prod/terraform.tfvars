@@ -15,7 +15,7 @@
 
 #prod variables assignment
 
-bucket_name = "state-bucket-961aa1ca4d3101c4"
+bucket_name = "my-state-bucket"
 env         = "prod"
 vm_name     = "demostenes"
 vm_type     = "n1-standard-1"
