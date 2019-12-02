@@ -1,0 +1,17 @@
+#qa-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pinit-front
+  annotations:
+    configmanagement.gke.io/cluster-selector: staging-selector
+spec:
+  hosts:
+  - pinit.com
+  gateways:
+  - pinit-gateway
+  http:
+  - route:      
+    - destination:
+        host: pinit-front.pinit-app.svc.cluster.local
+        subset: v1

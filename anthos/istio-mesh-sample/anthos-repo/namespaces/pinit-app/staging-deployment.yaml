@@ -1,0 +1,44 @@
+#qa-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pinit-front
+  namespace: pinit-app
+  labels:
+    app: pinit
+    version: v2
+  annotations:
+    configmanagement.gke.io/cluster-selector: staging-selector
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pinit
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: pinit
+        version: v2
+    spec:
+      serviceAccountName: sa-pinit-front
+      containers:
+      - name: pinit-nginx
+        image: melkyah/pinit-sample:v2
+        imagePullPolicy: IfNotPresent
+        livenessProbe: 
+          httpGet: 
+            path: / 
+            port: 80 
+          initialDelaySeconds: 60
+          timeoutSeconds: 1 
+          periodSeconds: 10 
+          failureThreshold: 3
+        readinessProbe:
+          httpGet: 
+            path: / 
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5     
+        ports:
+        - containerPort: 80

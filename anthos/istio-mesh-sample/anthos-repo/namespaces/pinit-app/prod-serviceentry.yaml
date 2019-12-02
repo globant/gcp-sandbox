@@ -1,0 +1,35 @@
+#prod-serviceentry.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: pinit-remote
+  annotations:
+    configmanagement.gke.io/cluster-selector: prod-selector
+  namespace: pinit-app
+spec:
+  hosts:
+  # must be of form name.namespace.global
+  - pinit-front.pinit-app.global
+  # Treat remote cluster services as part of the service mesh
+  # as all clusters in the service mesh share the same root of trust.
+  location: MESH_INTERNAL
+  ports:
+  - name: http
+    number: 80
+    protocol: HTTP
+  resolution: DNS
+  addresses:
+  # the IP address to which httpbin.bar.global will resolve to
+  # must be unique for each remote service, within a given cluster.
+  # This address need not be routable. Traffic for this IP will be captured
+  # by the sidecar and routed appropriately.
+  - 240.0.0.2
+  endpoints:
+  # This is the routable address of the ingress gateway in cluster2 that
+  # sits in front of sleep.foo service. Traffic from the sidecar will be
+  # routed to this address.
+  - address: 35.197.77.253
+    labels:
+      version: 0.1.2
+    ports:
+      http: 15443 # Do not change this port value

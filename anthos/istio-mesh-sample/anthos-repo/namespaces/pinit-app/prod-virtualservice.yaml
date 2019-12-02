@@ -1,0 +1,22 @@
+#prod-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pinit-front
+annotations:
+    configmanagement.gke.io/cluster-selector: prod-selector
+spec:
+  hosts:
+  - pinit.com
+  gateways:
+  - pinit-gateway
+  http:
+  - route:      
+    - destination:
+        host: pinit-front.pinit-app.global
+        subset: v1
+      weight: 20
+    - destination:
+        host: pinit-front.pinit-app.svc.cluster.local
+        subset: v1
+      weight: 80
